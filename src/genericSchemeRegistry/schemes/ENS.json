@@ -120,7 +120,7 @@
     {
       "id": "setSubnodeOwner",
       "label": "Create Subdomain",
-      "description": "Creates a new subdomain of node, assigning ownership of it to the specified owner. If the domain already exists, ownership is reassigned but the resolver and TTL are left unmodified. label is the keccak256 hash of the subdomain label to create. For example, if you own alice.eth and want to create the subdomain iam.alice.eth, supply namehash('alice.eth') as the node, and keccak256('iam') as the label.",
+      "description": "Creates a new subdomain of node, assigning ownership of it to the specified owner. If the domain already exists, ownership is reassigned but the resolver and TTL are left unmodified. Label is the subdomain label to create. For example, if you own alice.eth and want to create the subdomain iam.alice.eth, supply 'alice.eth' as the node, and 'iam' as the label.",
       "notes": "https://docs.ens.domains/contract-api-reference/ens#set-ttl",
       "fields": [
         {
