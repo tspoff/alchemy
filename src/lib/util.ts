@@ -339,44 +339,31 @@ export function linkToEtherScan(address: Address) {
   return `https://${prefix}etherscan.io/address/${address}`;
 }
 
-export type AccountClaimableRewardsType = { [key: string]: BN };
-/**
- * Returns an object describing GenesisProtocol non-zero, unredeemed reward amounts for the current user, optionally
- * filtered by whether the DAO has the funds to pay the rewards.
- * @param reward unredeemed GP rewards for the current user
- * @param daoBalances 
- */
-export function getGpRewards(reward: IRewardState, daoBalances: { [key: string]: BN } = {}): AccountClaimableRewardsType {
+export function getClaimableRewards(reward: IRewardState) {
   if (!reward) {
     return {};
   }
 
-  const result: AccountClaimableRewardsType = {};
+  const result: { [key: string]: BN } = {};
   if (reward.reputationForProposer.gt(new BN(0)) && reward.reputationForProposerRedeemedAt === 0) {
     result.reputationForProposer = reward.reputationForProposer;
   }
   if (reward.reputationForVoter.gt(new BN(0)) && reward.reputationForVoterRedeemedAt === 0) {
     result.reputationForVoter = reward.reputationForVoter;
   }
-  /**
-   * note the following assume that the GenesisProtocol is using GEN for staking
-   */
-  if (reward.tokensForStaker.gt(new BN(0)) 
-    && (daoBalances["GEN"] === undefined || daoBalances["GEN"].gte(reward.tokensForStaker))
-    && (reward.tokensForStakerRedeemedAt === 0)) {
+
+  if (reward.tokensForStaker.gt(new BN(0)) && reward.tokensForStakerRedeemedAt === 0) {
     result.tokensForStaker = reward.tokensForStaker;
   }
-  if (reward.daoBountyForStaker.gt(new BN(0))
-    && (daoBalances["GEN"] === undefined || daoBalances["GEN"].gte(reward.daoBountyForStaker))
-    && (reward.daoBountyForStakerRedeemedAt === 0)) {
+  if (reward.daoBountyForStaker.gt(new BN(0)) && reward.daoBountyForStakerRedeemedAt === 0) {
     result.daoBountyForStaker = reward.daoBountyForStaker;
   }
   return result;
 }
 
 // TOOD: move this function to the client library!
-export function hasGpRewards(reward: IRewardState) {
-  const claimableRewards = getGpRewards(reward);
+export function hasClaimableRewards(reward: IRewardState) {
+  const claimableRewards = getClaimableRewards(reward);
   for (const key of Object.keys(claimableRewards)) {
     if (claimableRewards[key].gt(new BN(0))) {
       return true;
@@ -386,13 +373,13 @@ export function hasGpRewards(reward: IRewardState) {
 }
 
 /**
- * Returns an object describing ContributionReward non-zero, unredeemed reward amounts for the CR beneficiary, optionally
- * filtered by whether the DAO has the funds to pay the rewards.
- * @param  reward unredeemed CR rewards
- * @param daoBalances 
+ * given an IContributionReward, return an array with the amounts that are stil to be claimbed
+ * by the beneficiary of the proposal
+ * @param  reward an object that immplements IContributionReward
+ * @return  an array mapping strings to BN
  */
-export function getCRRewards(reward: IContributionReward, daoBalances: { [key: string]: BN } = {}): AccountClaimableRewardsType {
-  const result: AccountClaimableRewardsType = {};
+export function claimableContributionRewards(reward: IContributionReward, daoBalances: { [key: string]: BN } = {}) {
+  const result: { [key: string]: BN } = {};
   if (
     reward.ethReward &&
     !reward.ethReward.isZero()
