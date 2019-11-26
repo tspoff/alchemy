@@ -8,13 +8,14 @@ import BN = require("bn.js");
 import * as classNames from "classnames";
 import withSubscription, { ISubscriptionProps } from "components/Shared/withSubscription";
 import * as GeoPattern from "geopattern";
-import { formatTokens, getExchangesList, supportedTokens } from "lib/util";
+import { ethErrorHandler, formatTokens, getExchangesList, supportedTokens } from "lib/util";
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { first } from "rxjs/operators";
 import { IRootState } from "reducers";
 import { connect } from "react-redux";
 import * as uiActions from "actions/uiActions";
+import TrainingTooltip from "components/Shared/TrainingTooltip";
 import * as css from "./Dao.scss";
 
 interface IExternalProps {
@@ -52,7 +53,7 @@ class DaoSidebar extends React.Component<IProps, IStateProps> {
     super(props);
   }
 
-  private handleCloseMenu = () => (_event: any): void => {
+  private handleCloseMenu = (_event: any): void => {
     this.props.hideMenu();
   }
 
@@ -72,7 +73,7 @@ class DaoSidebar extends React.Component<IProps, IStateProps> {
       <div className={menuClass}>
         <div className={css.daoNavigation}>
           <div className={css.daoName}>
-            <Link to={"/dao/" + dao.address} onClick={this.handleCloseMenu()}>
+            <Link to={"/dao/" + dao.address} onClick={this.handleCloseMenu}>
               <b className={css.daoIcon} style={{ backgroundImage: bgPattern.toDataUrl() }}></b>
               <em></em>
               <span>{dao.name}</span>
@@ -103,7 +104,7 @@ class DaoSidebar extends React.Component<IProps, IStateProps> {
             <span className={css.navHeading}><b>Menu</b></span>
             <ul>
               <li>
-                <Link to={"/dao/" + dao.address} onClick={this.handleCloseMenu()}>
+                <Link to={"/dao/" + dao.address} onClick={this.handleCloseMenu}>
                   <span className={css.menuDot} />
                   <span className={
                     classNames({
@@ -116,20 +117,22 @@ class DaoSidebar extends React.Component<IProps, IStateProps> {
                 </Link>
               </li>
               <li>
-                <Link to={"/dao/" + dao.address + "/members/"} onClick={this.handleCloseMenu()}>
-                  <span className={css.menuDot} />
-                  <span className={
-                    classNames({
-                      [css.notification]: true,
-                      [css.holdersNotification]: true,
-                    })
-                  }></span>
-                  <img src="/assets/images/Icon/menu/holders.svg" />
+                <TrainingTooltip placement="topLeft" overlay={"List of entities (DAOs and individuals) that have voting power in the DAO"}>
+                  <Link to={"/dao/" + dao.address + "/members/"} onClick={this.handleCloseMenu}>
+                    <span className={css.menuDot} />
+                    <span className={
+                      classNames({
+                        [css.notification]: true,
+                        [css.holdersNotification]: true,
+                      })
+                    }></span>
+                    <img src="/assets/images/Icon/menu/holders.svg" />
                   Reputation Holders
-                </Link>
+                  </Link>
+                </TrainingTooltip>
               </li>
               <li>
-                <Link to={"/dao/" + dao.address + "/history/"} onClick={this.handleCloseMenu()}>
+                <Link to={"/dao/" + dao.address + "/history/"} onClick={this.handleCloseMenu}>
                   <span className={css.menuDot} />
                   <span className={
                     classNames({
@@ -142,21 +145,23 @@ class DaoSidebar extends React.Component<IProps, IStateProps> {
                 </Link>
               </li>
               <li>
-                <Link to={"/dao/" + dao.address + "/discussion/"} onClick={this.handleCloseMenu()}>
-                  <span className={
-                    classNames({
-                      [css.menuDot]: true,
-                      [css.red]: hasNewPosts,
-                    })} />
-                  <span className={
-                    classNames({
-                      [css.notification]: true,
-                      [css.discussionNotification]: true,
-                    })
-                  }></span>
-                  <img src="/assets/images/Icon/menu/chat.svg" />
+                <TrainingTooltip placement="topLeft" overlay={"Space designated for general questions, statements and comments"}>
+                  <Link to={"/dao/" + dao.address + "/discussion/"} onClick={this.handleCloseMenu}>
+                    <span className={
+                      classNames({
+                        [css.menuDot]: true,
+                        [css.red]: hasNewPosts,
+                      })} />
+                    <span className={
+                      classNames({
+                        [css.notification]: true,
+                        [css.discussionNotification]: true,
+                      })
+                    }></span>
+                    <img src="/assets/images/Icon/menu/chat.svg" />
                   DAO Wall
-                </Link>
+                  </Link>
+                </TrainingTooltip>
               </li>
             </ul>
           </div>
@@ -177,7 +182,7 @@ class DaoSidebar extends React.Component<IProps, IStateProps> {
           </div>
           <div className={css.menuWrapper}>
             <ul>
-              <li><Link to="/" onClick={this.handleCloseMenu()}>Home</Link></li>
+              <li><Link to="/" onClick={this.handleCloseMenu}>Home</Link></li>
               <li>
                 <a>Buy GEN</a>
                 <ul>
@@ -213,13 +218,13 @@ class DaoSidebar extends React.Component<IProps, IStateProps> {
 }
 
 /***** DAO ETH Balance *****/
-interface IEthProps extends ISubscriptionProps<any> {
+interface IEthProps extends ISubscriptionProps<BN|null> {
   dao: IDAOState;
 }
+
 const ETHBalance = (props: IEthProps) => {
   const { data } = props;
-
-  return <li key="ETH"><strong>{formatTokens(new BN(data))}</strong> ETH</li>;
+  return <li key="ETH"><strong>{formatTokens(data)}</strong> ETH</li>;
 };
 
 const SubscribedEthBalance = withSubscription({
@@ -231,7 +236,7 @@ const SubscribedEthBalance = withSubscription({
   },
   createObservable: (props: IEthProps) => {
     const arc = getArc();
-    return arc.dao(props.dao.address).ethBalance();
+    return arc.dao(props.dao.address).ethBalance().pipe(ethErrorHandler());
   },
 });
 
@@ -269,7 +274,7 @@ const SubscribedTokenBalance = withSubscription({
 
     const arc = getArc();
     const token = new Token(props.tokenAddress, arc);
-    return token.balanceOf(props.dao.address);
+    return token.balanceOf(props.dao.address).pipe(ethErrorHandler());
   },
 });
 

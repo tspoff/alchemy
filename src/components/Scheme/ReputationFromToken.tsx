@@ -1,7 +1,7 @@
 import { promisify } from "util";
 import { Address, ISchemeState, Token } from "@daostack/client";
 import axios from "axios";
-import { getWeb3Provider } from "arc";
+import { getWeb3Provider, getArcSettings } from "arc";
 import * as ethABI from "ethereumjs-abi";
 import * as queryString from "query-string";
 import { RouteComponentProps } from "react-router-dom";
@@ -195,7 +195,7 @@ class ReputationFromToken extends React.Component<IProps, IState> {
       // send the transaction and get notifications
       if (contract) {
         // more information on this service is here: https://github.com/dOrgTech/TxPayerService
-        const txServiceUrl = "https://tx-sender-service.herokuapp.com/send-tx";
+        const txServiceUrl = getArcSettings().txSenderServiceUrl;
         const data = {
           to: schemeState.address,
           methodAbi: {
@@ -237,14 +237,12 @@ class ReputationFromToken extends React.Component<IProps, IState> {
             method: "post",
             data,
           });
-          console.log(response);
-          if (response.data.status === 400) {
-            this.props.showNotification(NotificationStatus.Failure, `An error occurred on the transaction service: ${response.data.message}`);
+          if (response.data.status !== 200) {
+            this.props.showNotification(NotificationStatus.Failure, `An error occurred on the transaction service: ${response.data.status}: ${response.data.message}`);
           } else {
             this.props.showNotification(NotificationStatus.Success, `You've successfully redeemed rep to ${values.accountAddress}`);
           }
         } catch(err) {
-          console.log(err.message);
           this.props.showNotification(NotificationStatus.Failure, `${err.message}}`);
         }
         // const tx = await contract.methods.redeemWithSignature(values.accountAddress.toLowerCase(), signatureType, signature).send(
@@ -261,6 +259,8 @@ class ReputationFromToken extends React.Component<IProps, IState> {
     }
     setSubmitting(false);
   }
+
+  private onSubmitClick = (setFieldValue: any) => ()=>{ setFieldValue("useTxSenderService",false); }
 
   public render(): RenderOutput {
     const { daoAvatarAddress, schemeState, currentAccountAddress } = this.props;
@@ -286,6 +286,7 @@ class ReputationFromToken extends React.Component<IProps, IState> {
               useTxSenderService: false,
             } as IFormValues}
 
+            // eslint-disable-next-line react/jsx-no-bind
             validate={(values: IFormValues): void => {
               const errors: any = {};
 
@@ -306,6 +307,7 @@ class ReputationFromToken extends React.Component<IProps, IState> {
 
             onSubmit={this.handleSubmit}
 
+            // eslint-disable-next-line react/jsx-no-bind
             render={({
               errors,
               touched,
@@ -332,24 +334,22 @@ class ReputationFromToken extends React.Component<IProps, IState> {
                 <div className={schemeCss.redemptionButton}>
                   <button type="submit"
                     disabled={false}
-                    onClick={(_e)=>{
-                      setFieldValue("useTxSenderService",false);
-                    }}
+                    onClick={this.onSubmitClick(setFieldValue)}
                   >
                     <img src="/assets/images/Icon/redeem.svg"/> Redeem
                   </button>
                 </div>
-                <div className={schemeCss.redemptionButton}>
-                  <div>Or try our new experimental feature:</div>
-                  <button type="submit"
-                    disabled={false}
-                    onClick={(_e)=>{
-                      setFieldValue("useTxSenderService",true);
-                    }}
-                  >
-                    <img src="/assets/images/Icon/redeem.svg"/> Redeem w/o paying gas
-                  </button>
-                </div>
+                {  getArcSettings().txSenderServiceUrl ?
+                  <div className={schemeCss.redemptionButton}>
+                    <div>Or try our new experimental feature:</div>
+                    <button type="submit"
+                      disabled={false}
+                      onClick={this.onSubmitClick(setFieldValue)}
+                    >
+                      <img src="/assets/images/Icon/redeem.svg"/> Redeem w/o paying gas
+                    </button>
+                  </div>
+                  : null }
               </Form>;
             }}
           />
