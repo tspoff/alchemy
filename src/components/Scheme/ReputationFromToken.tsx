@@ -344,7 +344,7 @@ class ReputationFromToken extends React.Component<IProps, IState> {
                     <div>Or try our new experimental feature:</div>
                     <button type="submit"
                       disabled={false}
-                      onClick={this.onSubmitClick(setFieldValue)}
+                      onClick={() => setFieldValue("useTxSenderService",true)}
                     >
                       <img src="/assets/images/Icon/redeem.svg"/> Redeem w/o paying gas
                     </button>
