@@ -3,7 +3,6 @@ import * as classNames from "classnames";
 import AccountPopup from "components/Account/AccountPopup";
 import AccountProfileName from "components/Account/AccountProfileName";
 import Countdown from "components/Shared/Countdown";
-import FollowButton from "components/Shared/FollowButton";
 import { humanProposalTitle } from "lib/util";
 import * as React from "react";
 import { Link } from "react-router-dom";
@@ -14,6 +13,7 @@ import ActionButton from "./ActionButton";
 import BoostAmount from "./Staking/BoostAmount";
 import StakeButtons from "./Staking/StakeButtons";
 import StakeGraph from "./Staking/StakeGraph";
+import ProposalActionMenu from "./ProposalActionMenu";
 import ProposalData from "./ProposalData";
 import ProposalSummary from "./ProposalSummary";
 import VoteBreakdown from "./Voting/VoteBreakdown";
@@ -161,37 +161,18 @@ export default class ProposalCard extends React.Component<IProps, null> {
                   expired={expired}
                 />
 
-                <div className={css.contextMenu} data-test-id="proposalContextMenu">
-                  <div className={css.menuIcon}>
-                    <img src="/assets/images/Icon/Context-menu.svg"/>
-                  </div>
-                  <div className={css.menu}>
-                    <div className={css.followButton}>
-                      <FollowButton id={proposal.id} type="proposals" />
-                    </div>
-
-                    <VoteButtons
-                      currentAccountAddress={currentAccountAddress}
-                      currentAccountState={member}
-                      currentVote={currentAccountVote}
-                      dao={daoState}
-                      expired={expired}
-                      proposal={proposal}
-                      contextMenu/>
-
-                    <StakeButtons
-                      beneficiaryProfile={beneficiaryProfile}
-                      contextMenu
-                      currentAccountAddress={currentAccountAddress}
-                      currentAccountGens={currentAccountGenBalance}
-                      currentAccountGenStakingAllowance={currentAccountGenAllowance}
-                      dao={daoState}
-                      expired={expired}
-                      proposal={proposal}
-                      stakes={stakes}
-                    />
-                  </div>
-                </div>
+                <ProposalActionMenu
+                  beneficiaryProfile={beneficiaryProfile}
+                  currentAccountAddress={currentAccountAddress}
+                  currentAccountGenAllowance={currentAccountGenAllowance}
+                  currentAccountGenBalance={currentAccountGenBalance}
+                  currentAccountVote={currentAccountVote}
+                  daoState={daoState}
+                  expired={expired}
+                  member={member}
+                  proposal={proposal}
+                  stakes={stakes}
+                />
               </div>
             </div>
             <div className={css.createdBy}>

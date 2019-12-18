@@ -142,12 +142,6 @@
     }
   }
 
-  .followButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-
   .itemContent {
     background-color: #fcfdff;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
@@ -156,7 +150,23 @@
     overflow: hidden;
     position: relative;
 
+    .followButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .actionMenu {
+      position: absolute;
+      top: 10px;
+      right: 17px;
+    }
+
     .proposalItem {
+      .followButton {
+        right: 43px;
+      }
+
       .daoName {
         margin-bottom: 17px;
 

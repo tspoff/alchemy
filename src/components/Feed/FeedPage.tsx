@@ -40,7 +40,7 @@ type SubscriptionData = [any[], any[], any[]];
 
 type IProps = IStateProps & IDispatchProps & ISubscriptionProps<SubscriptionData>;
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 20;
 
 class FeedPage extends React.Component<IProps, null> {
 
@@ -106,11 +106,8 @@ class FeedPage extends React.Component<IProps, null> {
     if (events.length === 0) {
       return this.renderEmptyFeed();
     }
-
-    const { currentAccountProfile } = this.props;
-
     const eventsHTML = events.map((event: any) =>
-      <FeedItem key={event.id} event={event} currentAccountProfile={currentAccountProfile} userProfile={profiles[event.user]} />);
+      <FeedItem currentAccountAddress={currentAccountAddress} key={event.id} event={event} userProfile={profiles[event.user]} />);
 
     return (
       <div className={css.feedContainer}>
@@ -152,6 +149,7 @@ const getFeedObservable = (props: IStateProps, existingData?: SubscriptionData) 
       stakesAgainst
       votesFor
       votesAgainst
+      votingMachine
       proposer
       scheme {
         id

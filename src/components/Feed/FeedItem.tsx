@@ -15,8 +15,8 @@ import UserFeedItem from "./UserFeedItem";
 import * as css from "./Feed.scss";
 
 interface IProps {
+  currentAccountAddress: string;
   event: any;
-  currentAccountProfile: IProfileState;
   userProfile: IProfileState;
 }
 
@@ -43,7 +43,7 @@ const daoTitle = (event: any, text = "") => {
 };
 
 const FeedItem = (props: IProps) => {
-  const { event, userProfile } = props;
+  const { currentAccountAddress, event, userProfile } = props;
 
   let title;
   let content;
@@ -73,7 +73,7 @@ const FeedItem = (props: IProps) => {
         ? daoTitle(event, ` - proposal is ${eventData.stage}`)
         : `Proposal is ${eventData.stage}`;
       icon = <img src="/assets/images/Icon/Info.svg" />;
-      content = <ProposalFeedItem event={event} />;
+      content = <ProposalFeedItem currentAccountAddress={currentAccountAddress} event={event} />;
       break;
     case "VoteFlip": {
       const voteFlipForAgainst = eventData.outcome === "Pass" ? "Pass" : "Fail";
@@ -81,7 +81,7 @@ const FeedItem = (props: IProps) => {
         ? daoTitle(event, `Vote Flip - ${voteFlipForAgainst} is now in the lead`)
         : `Vote Flip - ${voteFlipForAgainst} is now in the lead`;
       icon = <img src="/assets/images/Icon/Info.svg" />;
-      content = <ProposalFeedItem event={event} />;
+      content = <ProposalFeedItem currentAccountAddress={currentAccountAddress} event={event} />;
       break;
     }
     case "NewProposal":
@@ -89,20 +89,20 @@ const FeedItem = (props: IProps) => {
         ? daoTitle(event, "has a new proposal")
         : accountTitle(event, userProfile, "submitted a new proposal");
       icon = <img src="/assets/images/Icon/circle-plus.svg" />;
-      content = <ProposalFeedItem event={event} />;
+      content = <ProposalFeedItem currentAccountAddress={currentAccountAddress} event={event} />;
       break;
     case "Stake": {
       const stakeForAgainst = eventData.outcome === "Pass" ? "Pass" : "Fail";
       title = accountTitle(event, userProfile, `staked on ${stakeForAgainst} with ${fromWei(new BN(eventData.stakeAmount)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})} GEN`);
       icon = <img src="/assets/images/Icon/v-small-line.svg" />;
-      content = <ProposalFeedItem event={event} />;
+      content = <ProposalFeedItem currentAccountAddress={currentAccountAddress} event={event} />;
       break;
     }
     case "Vote": {
       const voteForAgainst = eventData.outcome === "Pass" ? "For" : "Against";
       title = accountTitle(event, userProfile, <span>voted {voteForAgainst} with <Reputation reputation={new BN(eventData.reputationAmount)} totalReputation={new BN(event.dao.nativeReputation.totalSupply)} daoName={event.dao.name} /></span>);
       icon = <img src="/assets/images/Icon/vote/for-gray.svg" />;
-      content = <ProposalFeedItem event={event} />;
+      content = <ProposalFeedItem currentAccountAddress={currentAccountAddress} event={event} />;
       break;
     }
     default:
