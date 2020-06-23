@@ -24,26 +24,30 @@ export const decodePluginToRegisterData = (pluginName: string, pluginToRegisterD
   const encodedDataForWeb3 = "0x" + pluginToRegisterData.substring(10);
   const decodedData = web3.eth.abi.decodeParameters(PLUGIN_PARAMS[pluginName], encodedDataForWeb3);
   let genericSchemeName = "";
-  if(pluginName === "GenericScheme"){
+  if (pluginName === "GenericScheme"){
     const genericPluginRegistry = new GenericPluginRegistry();
-    const genericPluginInfo = genericPluginRegistry.getPluginInfo(decodedData[5])
-    genericPluginInfo ? genericSchemeName = genericPluginInfo.specs.name : "Blockchain Interaction";
+    const genericPluginInfo = genericPluginRegistry.getPluginInfo(decodedData[5]);
+    if (genericPluginInfo){
+      genericSchemeName = genericPluginInfo.specs.name;
+    } else {
+      genericSchemeName = "Blockchain Interaction";
+    }
   }
 
   let showName = pluginName;
-  if(pluginName === "ContributionRewardExt"){
+  if (pluginName === "ContributionRewardExt"){
     showName = decodedData[7];
   }
-  else if(pluginName === "GenericScheme"){
+  else if (pluginName === "GenericScheme"){
     showName = genericSchemeName ? genericSchemeName : pluginName;
   }
-  
+
   const data = {
     votingParams: decodedData[2],
     pluginName: showName,
     pluginType: pluginName,
     contractToCall: pluginName === "GenericScheme" ? decodedData[5] : "",
-  }
+  };
   return data;
 };
 

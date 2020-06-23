@@ -56,7 +56,7 @@ class ProposalSummary extends React.Component<IProps, IState> {
     const pluginName = decodedData.pluginName;
 
     const votingParams = decodedData.votingParams.map((param: string, index: number) => {
-      const params = ["Boosted Vote Period Limit:", "DAO Bounty Constant:", "Proposal Reputation Reward:", "Minimum DAO Bounty:", "Pre-Boosted Vote Period Limit:", "Queued Vote Period Limit:", "Queued Vote Required:", "Quiet Ending Period:", "Threshold Constant:"];
+      const params = ["Boosted Vote Period Limit:", "DAO Bounty Constant:", "Proposal Reputation Reward:", "Minimum DAO Bounty:", "Pre-Boosted Vote Period Limit:", "Queued Vote Period Limit:", "Queued Vote Required:", "Quiet Ending Period:", "Threshold Constant:", "DAO Bounty Const:", "Activation Time:"];
       return (
         <tr key={index}>
           <th>{params[index]}</th>
@@ -139,13 +139,13 @@ class ProposalSummary extends React.Component<IProps, IState> {
                           <img className={css.copyButton} src="/assets/images/Icon/Copy-blue.svg" onClick={this.copyToClipboardHandler(proposalState.pluginToRegisterData)} />
                         </td>
                       </tr>
-                        {votingParams}
-                        {decodedData.pluginType === "GenericScheme" && 
+                      {votingParams}
+                      {decodedData.pluginType === "GenericScheme" &&
                         <tr>
                           <th>Contract to Call:</th>
                           <td>{decodedData.contractToCall}</td>
                         </tr>
-                        }
+                      }
                       <tr>
                         <th>Permissions:</th>
                         <td>
